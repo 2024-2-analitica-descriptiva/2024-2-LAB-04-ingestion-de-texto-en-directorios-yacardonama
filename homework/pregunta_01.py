@@ -4,7 +4,9 @@
 """
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
-
+import zipfile
+import os
+import pandas as pd
 
 def pregunta_01():
     """
@@ -71,3 +73,40 @@ def pregunta_01():
 
 
     """
+    
+    def descomprimir_y_crear_estructura():
+        ruta_zip = "./files/input.zip"
+        carpeta_destino = "./files/input"
+
+        with zipfile.ZipFile(ruta_zip, 'r') as zip_ref:
+            zip_ref.extractall(carpeta_destino)
+
+    descomprimir_y_crear_estructura()
+
+    ruta_train = "./files/input/input/train"
+    ruta_test = "./files/input/input/test"
+
+    def crear_dataset(ruta_base, nombre_archivo):
+        # Crear la carpeta de salida si no existe
+        carpeta_salida = os.path.dirname(nombre_archivo)
+        os.makedirs(carpeta_salida, exist_ok=True)
+
+        data = []
+        for root, dirs, files in os.walk(ruta_base):
+            for file in files:
+                if file.endswith(".txt"):
+                    with open(os.path.join(root, file), 'r') as f:
+                        frase = f.read().strip()
+                        sentimiento = os.path.basename(root)
+                        data.append([frase, sentimiento])
+
+        df = pd.DataFrame(data, columns=['phrase', 'target'])
+        df.to_csv(nombre_archivo, index=False)
+
+    crear_dataset(ruta_train, "./files/output/train_dataset.csv")
+    crear_dataset(ruta_test, "./files/output/test_dataset.csv")
+
+    
+if __name__=="__main__":
+    
+    print(pregunta_01())
